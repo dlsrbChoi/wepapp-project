@@ -12,3 +12,10 @@
 - Helpers : UI 요서에 대한 위치, 비율 , 보이기/감추기 등
 - Utilities : 보더, 색상, 사이즈, 정렬 등
 - Extend : 아이콘
+
+웹서버 구축
+- mkdir server
+- npm init
+- npm i express --save
+- npm i express-session --save
+- npm i mysql --save
