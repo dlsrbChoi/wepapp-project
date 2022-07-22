@@ -33,14 +33,15 @@
           <div class="card shadow-sm">
             <div class="card-body">
               <h5 class="card-title">{{productDetail.product_name}}</h5>
-              <h5 class="card-title pt-3 pb-3 border-top">{{productDetail.product_price}}원</h5>
+              <h5 class="card-title pt-3 pb-3 border-top">{{getCurrencyFormat(productDetail.product_price)}}원</h5>
               <p class="card-text pt-3 pb-3 border-top">
                 <span class="badge bg-dark">{{productDetail.category1}}</span>
                 <span class="badge bg-dark mx-1">{{productDetail.category2}}</span>
                 <span class="badge bg-dark">{{productDetail.category3}}</span>
               </p>
               <p class="card-text pb-3">
-                배송비 {{productDetail.delivery_price}}원 | 도서산관(제주도) 배송비 추가 {{productDetail.add_delivery_price}}원 |
+                배송비 {{getCurrencyFormat(productDetail.delivery_price)}}원 | 도서산관(제주도) 배송비 추가
+                {{getCurrencyFormat(productDetail.add_delivery_price)}}원 |
                 {{productDetail.outbound_days}}일 이내 출고 (주말,공휴일제외)
               </p>
               <div class="card-text pb-3 border-top">
@@ -62,7 +63,7 @@
                   <h3>총 삼품 금액</h3>
                 </div>
                 <div class="col-6" style="text-align: right;">
-                  <h3>{{totalPrice}}원</h3>
+                  <h3>{{getCurrencyFormat(totalPrice)}}원</h3>
                 </div>
               </div>
               <div class="d-flex justify-content-between align-items-center">
@@ -110,7 +111,7 @@ export default {
       this.totalPrice = this.productDetail.product_price * this.total;
     },
     getCurrencyFormat(value) {
-      this.$currencyFormat 32:16
+      return this.$currencyFormat(value);
     },
     async getProductDetail() {
       let productDetail = await this.$api("/api/productDetail", {param: [this.productId]});
