@@ -18,11 +18,14 @@
             <li class="nav-item">
               <router-link class="nav-link" to="/detail">제품상세페이지</router-link>
             </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="/create">제품등록페이지</router-link>
+            <li v-if="user.email != undefined" class="nav-item">
+              <router-link class="nav-link" to="/sales">제품등록페이지</router-link>
             </li>
+            <li v-if="user.email == undefined"><button class="btn btn-danger" type="button"
+                @click="kakaoLoin">로그인</button></li>
+            <li v-else><button class="btn btn-danger" type="button" @click="kakaoLogout">로그아웃</button></li>
           </ul>
-          <form class="d-flex" role="search">
+          <form class="d-flex">
             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
             <button class="btn btn-outline-success" type="submit">Search</button>
           </form>
@@ -41,7 +44,7 @@
             <path
               d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94" />
           </svg>
-          <small class="d-block mb-3 text-muted">&copy; 2017–2022</small>
+          <small class="d-block mb-3 text-muted">&copy; 2017-2020</small>
         </div>
         <div class="col-6 col-md">
           <h5>Features</h5>
@@ -85,7 +88,53 @@
     </footer>
   </div>
 </template>
+<script>
+export default {
+  computed: {
+    user() {
+      return this.$store.state.user;
+    }
+  },
+  methods: {
+    kakaoLoin() {
+      window.Kakao.Auth.login({
+        scope: 'profile_nickname, account_email',
+        success: this.getProfile
+      });
+    },
+    getProfile(authObj) {
+      console.log(authObj);
+      window.Kakao.API.request({
+        url: '/v2/user/me',
+        success: res => {
+          const kakao_account = res.kakao_account;
+          console.log(kakao_account);
+          this.login(kakao_account);
+          alert("로그인 성공!");
+        }
+      });
+    },
+    async login(kakao_account) {
+      await this.$api("/api/login", {
+        param: [
+          { email: kakao_account.email, nickname: kakao_account.profile.nickname },
+          { nickname: kakao_account.profile.nickname }
+        ]
+      });
 
+      this.$store.commit("user", kakao_account);
+    },
+    kakaoLogout() {
+      window.Kakao.Auth.logout((response) => {
+        console.log(response);
+        this.$store.commit("user", {});
+        alert("로그아웃");
+        this.$router.push({ path: '/' });
+      });
+    }
+  }
+}
+</script>
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -95,16 +144,16 @@
   color: #2c3e50;
 }
 
-nav {
+#nav {
   padding: 30px;
 }
 
-nav a {
+#nav a {
   font-weight: bold;
   color: #2c3e50;
 }
 
-nav a.router-link-exact-active {
+#nav a.router-link-exact-active {
   color: #42b983;
 }
 </style>

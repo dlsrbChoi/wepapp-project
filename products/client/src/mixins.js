@@ -1,4 +1,7 @@
 import axios from 'axios';
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
+axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 
 export default {
   methods: {
@@ -11,27 +14,34 @@ export default {
         console.log(e);
       })).data;
     },
-    $currencyFormat(value, format='#,###') {
-      if(value == 0 || value == null) return 0;
+    $base64(file) {
+      return new Promise(resolve => {
+        var a = new FileReader();
+        a.onload = e => resolve(e.target.result);
+        a.readAsDataURL(file);
+      });
+    },
+    $currencyFormat(value, format = '#,###') {
+      if (value == 0 || value == null) return 0;
 
-      var currency = format.substring(0,1);
-      if(currency === '$' || currency === '￦'){
+      var currency = format.substring(0, 1);
+      if (currency === '$' || currency === '₩') {
         format = format.substring(1, format.length);
-      } else{
+      } else {
         currency = '';
       }
 
       var groupingSeparator = ",";
       var maxFractionDigits = 0;
       var decimalSeparator = ".";
-      if(format.indexOf(".") == -1){
+      if (format.indexOf(".") == -1) {
         groupingSeparator = ",";
-      } else{
-        if(format.indexOf(",") < format.indexOf(".")){
+      } else {
+        if (format.indexOf(",") < format.indexOf(".")) {
           groupingSeparator = ",";
           decimalSeparator = ".";
           maxFractionDigits = format.length - format.indexOf(".") - 1;
-        } else{
+        } else {
           groupingSeparator = ".";
           decimalSeparator = ",";
           maxFractionDigits = format.length - format.indexOf(",") - 1;
@@ -40,24 +50,25 @@ export default {
 
       var prefix = "";
       var d = "";
+      // v = String(parseFloat(value).toFixed(maxFractionDigits));
 
       var dec = 1;
-      for(var i=0; i<maxFractionDigits; i++){
+      for (var i = 0; i < maxFractionDigits; i++) {
         dec = dec * 10;
       }
 
-      let v = String(Math.round(parseFloat(value)*dec)/dec);
+      var v = String(Math.round(parseFloat(value) * dec) / dec);
 
-      if(v.indexOf("-") > -1){
+      if (v.indexOf("-") > -1) {
         prefix = "-";
         v = v.substring(1);
       }
 
-      if(maxFractionDigits > 0 && format.substring(format.length-1, format.length) == '0'){
+      if (maxFractionDigits > 0 && format.substring(format.length - 1, format.length) == '0') {
         v = String(parseFloat(v).toFixed(maxFractionDigits));
       }
 
-      if(maxFractionDigits > 0 && v.indexOf("." > -1)){
+      if (maxFractionDigits > 0 && v.indexOf(".") > -1) {
         d = v.substring(v.indexOf("."));
         d = d.replace(".", decimalSeparator);
         v = v.substring(0, v.indexOf("."));
@@ -65,7 +76,7 @@ export default {
       var regExp = /\D/g;
       v = v.replace(regExp, "");
       var r = /(\d+)(\d{3})/;
-      while(r.test(v)){
+      while (r.test(v)) {
         v = v.replace(r, '$1' + groupingSeparator + '$2');
       }
 
